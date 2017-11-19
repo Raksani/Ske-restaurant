@@ -1,0 +1,8 @@
+#Descriptions; Price
+pizza;500.0
+salad;140.0
+soup;90.0
+drinking water;20.0
+milk shake;80.0
+cake;45.0
+
