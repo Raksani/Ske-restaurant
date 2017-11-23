@@ -3,37 +3,43 @@ import java.util.Scanner;
 import java.io.IOException;
 
 public class SKERestaurant {
-	static final Scanner sc = new Scanner(System.in);
-	public static String[] menu;
-	public static double[] prices;
+	private static Scanner sc = new Scanner(System.in);
+	private static String[] menu;
+	private static double[] prices;
+	private static int[] qty;
+	private static int MenuSize;
 	static RestaurantManager Menu;
-	public static double Total = 0;
-
+	private static double Total = 0;
+	private static ArrayList<String> quantities = RestaurantManager.Quantities;
+	
 	public static void main(String[] args) throws IOException {
 		RestaurantManager.readFile();
 		ArrayList<String> menuitems = RestaurantManager.MenuItems;
-		RestaurantManager.getMenuItems();
-		RestaurantManager.getPrices();
-		RestaurantManager.getQuantity();
+		ArrayList<String> quantities = RestaurantManager.Quantities;
+		menu = RestaurantManager.getMenuItems();
+		prices = RestaurantManager.getPrices();
+		qty = getQuantity();
+		MenuSize = RestaurantManager.getMenuItemsSize();
 		PrintWelcome();
 		PrintList();
 		PrintFunctions();
 		getChoices();
 	}
 
-	public static void PrintWelcome() {
+	//Print head of the menu
+	private static void PrintWelcome() {
 		System.out.println("---------- Welcome to SKE Restaurant ----------");
 		System.out.println("-----------------------------------------------");
 	}
-
-	public static void PrintList() {
+	//print menu list
+	private static void PrintList() {
 		System.out.println("---------------------- Menu -------------------");
-		for (int i = 0; i < RestaurantManager.getMenuItemsSize(); i++) {
-			System.out.printf("[%d]   %s \t\t%.2f %n", i + 1, RestaurantManager.Menu[i], RestaurantManager.Price[i]);
+		for (int i = 0; i < MenuSize; i++) {
+			System.out.printf("[%d]   %-20s  %5.2f %n", i + 1, menu[i], prices[i]);
 		}
 	}
-
-	public static void PrintFunctions() {
+	//print choices 
+	private static void PrintFunctions() {
 		System.out.print("[I]nput Order.\n");
 		System.out.println("[C]heck Order.");
 		System.out.println("[V]View Menu.");
@@ -41,21 +47,16 @@ public class SKERestaurant {
 		System.out.println("[E]xit.");
 	}
 
-	// public static void PrintMenu() {
-	// Menu.readFile();
-	// menu = Menu.getMenuItems();
-	// prices = Menu.getPrices();
-	// Recoredorder = new int[menu.length];
-	// System.out.println("---------------------- Menu -------------------");
-	// for (int i = 0; i < menu.length; i++) {
-	// System.out.printf("\t%2d.", i + 1);
-	// for (int j = i; j <= i; j++) {
-	// System.out.printf("%s %f Baht.\n", menu[j], prices[j]);
-	// }
-	// }
-	// System.out.println(" Input 0 to Finish Order. ");
-	// }
-
+	//change quantities to int array names qty
+	public static int[] getQuantity() {
+		int [] qty = new int[quantities.size()];
+		for (int i = 0; i < quantities.size(); i++) {
+			qty[i] = 0;
+		}
+		return qty;
+	}
+	//get the choice which user inputed and call the method to do the command
+	//If Input wrong choice,User has to input the new choice.
 	public static void getChoices() {
 		while (true) {
 			System.out.print("Choice : ");
@@ -95,32 +96,35 @@ public class SKERestaurant {
 	public static boolean exit() {
 		return false;
 	}
-
+	//if choice is in the list(less than 7) then ask user for enter the quantity
+	//collect the quantity to qty[] 
 	public static void getOrder(String choice) {
 		int choicenum = Integer.parseInt(choice);
-		if (choicenum > 0 && choicenum <= RestaurantManager.getMenuItemsSize()) {
+		if (choicenum > 0 && choicenum <= MenuSize) {
 			System.out.print("Enter your Quantity : ");
 			int Q = Integer.parseInt(sc.nextLine());
-			RestaurantManager.qty[choicenum-1] += Q;
+			qty[choicenum-1] += Q;
 		}
 	}
-
+	//print out the menu list which user has been ordered
 	public static void Order() {
 		System.out.println("+---------  Menu  ---------+--  Qty  --+---  Price  ---+");
-		for (int i = 0; i < RestaurantManager.MenuItems.size(); i++) {
-			if (RestaurantManager.qty[i] != 0) {
-				System.out.printf("| %-25s| %8d  |  %10.2f   | %n", RestaurantManager.Menu[i].substring(0,1).toUpperCase()+RestaurantManager.Menu[i].substring(1,RestaurantManager.Menu[i].length()), RestaurantManager.qty[i],
-					      RestaurantManager.Price[i] * RestaurantManager.qty[i]);
+		for (int i = 0; i < MenuSize; i++) {
+			if (qty[i] != 0) {
+				System.out.printf("| %-25s| %8d  |  %10.2f   | %n", menu[i].substring(0,1).toUpperCase()+menu[i].substring(1,menu[i].length()), qty[i],
+					      prices[i] * qty[i]);
 			}
 		}
 		System.out.println("+--------------------------+-----------+---------------+");
 	}
-
+	//get the total and print it
+	//not only included tax but also excluded tax 
+	//user input the cash tendered and it will print the change out 
 	public static void Bill() {
 		double total = 0.0;
-		for (int i = 0; i < RestaurantManager.MenuItems.size(); i++) {
-			if (RestaurantManager.qty[i] != 0) {
-				total += Total + RestaurantManager.Price[i] * RestaurantManager.qty[i];
+		for (int i = 0; i < MenuSize; i++) {
+			if (qty[i] != 0) {
+				total += Total + prices[i] * qty[i];
 			}
 		}
 		System.out.printf("Total : %.2f\n", total);
